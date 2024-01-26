@@ -639,7 +639,7 @@ status_t IPCThreadState::getAndExecuteCommand()
             std::ostringstream logStream;
             logStream << "Processing top-level Command: " << getReturnString(cmd) << "\n";
             std::string message = logStream.str();
-            ALOGI("%s", message.c_str());
+            ALOGV("%s", message.c_str());
         }
 
         pthread_mutex_lock(&mProcess->mThreadCountLock);
@@ -799,7 +799,7 @@ status_t IPCThreadState::handlePolledCommands()
 
 void IPCThreadState::stopProcess(bool /*immediate*/)
 {
-    //ALOGI("**** STOPPING PROCESS");
+    //ALOGV("**** STOPPING PROCESS");
     flushCommands();
     int fd = mProcess->mDriverFD;
     mProcess->mDriverFD = -1;
@@ -822,7 +822,7 @@ status_t IPCThreadState::transact(int32_t handle,
         logStream << "BC_TRANSACTION thr " << (void*)pthread_self() << " / hand " << handle
                   << " / code " << TypeCode(code) << ": \t" << data << "\n";
         std::string message = logStream.str();
-        ALOGI("%s", message.c_str());
+        ALOGV("%s", message.c_str());
     }
 
     LOG_ONEWAY(">>>> SEND from pid %d uid %d %s", getpid(), getuid(),
@@ -847,9 +847,9 @@ status_t IPCThreadState::transact(int32_t handle,
 
 #if 0
         if (code == 4) { // relayout
-            ALOGI(">>>>>> CALLING transaction 4");
+            ALOGV(">>>>>> CALLING transaction 4");
         } else {
-            ALOGI(">>>>>> CALLING transaction %d", code);
+            ALOGV(">>>>>> CALLING transaction %d", code);
         }
 #endif
         if (reply) {
@@ -860,9 +860,9 @@ status_t IPCThreadState::transact(int32_t handle,
         }
         #if 0
         if (code == 4) { // relayout
-            ALOGI("<<<<<< RETURNING transaction 4");
+            ALOGV("<<<<<< RETURNING transaction 4");
         } else {
-            ALOGI("<<<<<< RETURNING transaction %d", code);
+            ALOGV("<<<<<< RETURNING transaction %d", code);
         }
         #endif
 
@@ -875,7 +875,7 @@ status_t IPCThreadState::transact(int32_t handle,
                 logStream << "(none requested)"
                           << "\n";
             std::string message = logStream.str();
-            ALOGI("%s", message.c_str());
+            ALOGV("%s", message.c_str());
         }
     } else {
         err = waitForResponse(nullptr, nullptr);
@@ -1021,7 +1021,7 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
             std::ostringstream logStream;
             logStream << "Processing waitForResponse Command: " << getReturnString(cmd) << "\n";
             std::string message = logStream.str();
-            ALOGI("%s", message.c_str());
+            ALOGV("%s", message.c_str());
         }
 
         switch (cmd) {
@@ -1149,7 +1149,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
                   << ", doReceive: " << doReceive << "\n";
 
         std::string message = logStream.str();
-        ALOGI("%s", message.c_str());
+        ALOGV("%s", message.c_str());
     }
 
     // Return immediately if there is nothing to do.
@@ -1163,7 +1163,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
             std::ostringstream logStream;
             logStream << "About to read/write, write size = " << mOut.dataSize() << "\n";
             std::string message = logStream.str();
-            ALOGI("%s", message.c_str());
+            ALOGV("%s", message.c_str());
         }
 #if defined(__ANDROID__)
         if (ioctl(mProcess->mDriverFD, BINDER_WRITE_READ, &bwr) >= 0)
@@ -1180,7 +1180,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
             std::ostringstream logStream;
             logStream << "Finished read/write, write size = " << mOut.dataSize() << "\n";
             std::string message = logStream.str();
-            ALOGI("%s", message.c_str());
+            ALOGV("%s", message.c_str());
         }
     } while (err == -EINTR);
 
@@ -1190,7 +1190,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
                   << ", write consumed: " << bwr.write_consumed << " (of " << mOut.dataSize()
                   << "), read consumed: " << bwr.read_consumed << "\n";
         std::string message = logStream.str();
-        ALOGI("%s", message.c_str());
+        ALOGV("%s", message.c_str());
     }
 
     if (err >= NO_ERROR) {
@@ -1219,7 +1219,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
             logStream << "\t" << HexDump(cmds, mIn.dataSize()) << "\n";
             while (cmds < end) cmds = printReturnCommand(logStream, cmds);
             std::string message = logStream.str();
-            ALOGI("%s", message.c_str());
+            ALOGV("%s", message.c_str());
         }
         return NO_ERROR;
     }
@@ -1401,7 +1401,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
             mHasExplicitIdentity = false;
             mLastTransactionBinderFlags = tr.flags;
 
-            // ALOGI(">>>> TRANSACT from pid %d sid %s uid %d\n", mCallingPid,
+            // ALOGV(">>>> TRANSACT from pid %d sid %s uid %d\n", mCallingPid,
             //    (mCallingSid ? mCallingSid : "<N/A>"), mCallingUid);
 
             Parcel reply;
@@ -1415,7 +1415,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                           << ", offsets addr="
                           << reinterpret_cast<const size_t*>(tr.data.ptr.offsets) << "\n";
                 std::string message = logStream.str();
-                ALOGI("%s", message.c_str());
+                ALOGV("%s", message.c_str());
             }
             if (tr.target.ptr) {
                 // We only have a weak reference on the target object, so we must first try to
@@ -1433,7 +1433,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                 error = the_context_object->transact(tr.code, buffer, &reply, tr.flags);
             }
 
-            //ALOGI("<<<< TRANSACT from pid %d restore pid %d sid %s uid %d\n",
+            //ALOGV("<<<< TRANSACT from pid %d restore pid %d sid %s uid %d\n",
             //     mCallingPid, origPid, (origSid ? origSid : "<N/A>"), origUid);
 
             if ((tr.flags & TF_ONE_WAY) == 0) {
@@ -1465,7 +1465,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                         logStream << " and reply parcel size " << reply.dataSize();
                     }
                     std::string message = logStream.str();
-                    ALOGI("%s", message.c_str());
+                    ALOGV("%s", message.c_str());
                 }
                 LOG_ONEWAY("NOT sending reply to %d!", mCallingPid);
             }
@@ -1485,7 +1485,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                 logStream << "BC_REPLY thr " << (void*)pthread_self() << " / obj " << tr.target.ptr
                           << ": \t" << reply << "\n";
                 std::string message = logStream.str();
-                ALOGI("%s", message.c_str());
+                ALOGV("%s", message.c_str());
             }
 
         }
@@ -1604,12 +1604,12 @@ void IPCThreadState::logExtendedError() {
 
 void IPCThreadState::freeBuffer(const uint8_t* data, size_t /*dataSize*/,
                                 const binder_size_t* /*objects*/, size_t /*objectsSize*/) {
-    //ALOGI("Freeing parcel %p", &parcel);
+    //ALOGV("Freeing parcel %p", &parcel);
     IF_LOG_COMMANDS() {
         std::ostringstream logStream;
         logStream << "Writing BC_FREE_BUFFER for " << data << "\n";
         std::string message = logStream.str();
-        ALOGI("%s", message.c_str());
+        ALOGV("%s", message.c_str());
     }
     ALOG_ASSERT(data != NULL, "Called with NULL data");
     IPCThreadState* state = self();
